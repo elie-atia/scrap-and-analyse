@@ -12,6 +12,8 @@ scrap-and-analyse/
 │ ├── __init__.py
 │ ├── scraper.py # Scraper class
 │ ├── utils.py # Utility functions
+│ ├── main.py # File to run the classes of the scraper
+│ ├── selectors.py # File to selectors of the scrapers
 │ └── settings.py # Project settings
 │
 ├── data/ # Recovered data
@@ -26,8 +28,13 @@ scrap-and-analyse/
 │
 ├── docs/ # Project documentation
 │
+├── drivers/                      # Folder that contains the driver for the browser
+│   └── chromedriver.exe          # File chromedriver.exe for Chrome
+│
 ├── .gitignore # Files and folders to ignore by Git
 ├── requirements.txt # List of project dependencies
+├── env.json # File containing the environement variables
+├── LICENSE #License of the project
 └── README.md # Project description and instructions
 
 ```

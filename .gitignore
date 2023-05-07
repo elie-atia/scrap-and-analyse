@@ -1,0 +1,11 @@
+/my_venv
+/.env
+
+#Chrome Driver
+/drivers/*.exe
+
+#Pycache
+**/__pycache__/
+
+#data
+/data/raw/
