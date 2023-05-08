@@ -13,3 +13,9 @@ CHROMEDRIVER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..
 
 OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data","raw" ,"results.csv")
 
+CONNECT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts","connect_vpn.bat")
+DECONNECT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts","deconnect_vpn.bat")
+VPNS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts","vpn_groups.json")
+
+
+

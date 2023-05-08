@@ -4,9 +4,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import time
 from selectors import CATEGORY_CARD_LIST_XPATH,CARD_PARENT_CSS,PRICE_CSS,TITLE_CSS,NUM_OF_PAGES_CSS
+from settings import VPNS_PATH, CONNECT_PATH, DECONNECT_PATH
+from thread_manager import ThreadManager
 import csv
 import urllib.parse
+import subprocess
+import json
 
+with open(VPNS_PATH,'r') as f:
+    vpn_groups = json.load(f)["vpn_groups"]
 
 MAX_WAIT_TIME = 50       
 
@@ -16,19 +22,30 @@ class Scrapper:
         self.url = url
         self.driver.get(url)
         self.output_file = output_file
+        self.vpn_index = 0
+        self.threadManager = ThreadManager()
+
 
     def get_num_of_pages(self):
-        num_of_pages_element = self.driver.find_element(By.CSS_SELECTOR,NUM_OF_PAGES_CSS)
+        num_of_pages_element = WebDriverWait(self.driver, MAX_WAIT_TIME).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, NUM_OF_PAGES_CSS))
+        )
         return int(num_of_pages_element.text)
 
     def scrape_all_pages(self):
         num_of_pages = self.get_num_of_pages()
-        all_properties_data = []
+        # all_properties_data = []
+        pages_per_vpn = 5
 
         for page in range(1, num_of_pages + 1):
+            if( (page - 1) % pages_per_vpn == 0):
+                self.reconnect_vpn()
+                
             print(f"Scraping page {page} of {num_of_pages}")
+            parent_elements = self.driver.find_elements(By.CSS_SELECTOR,CARD_PARENT_CSS)
             properties_data = self.get_properties_data()
-            all_properties_data.extend(properties_data)
+            self.threadManager.producer(properties_data)
+            # all_properties_data.extend(properties_data)
             self.go_to_page(page)
 
         return all_properties_data
@@ -45,15 +62,14 @@ class Scrapper:
 
     def run(self):
         print("run scraper called")
-        time.sleep(8)
+        time.sleep(12)
         all_properties_data = self.scrape_all_pages()
         
-        self.save_to_csv(all_properties_data)
+        # self.save_to_csv(all_properties_data)
         self.driver.quit()        
 
     def get_category_links(self):
         # Récupérer les liens des catégories en utilisant leurs sélecteurs CSS ou XPath
-        print('get_category_links')
         links = []
         category_card_list = WebDriverWait(self.driver, MAX_WAIT_TIME).until(
             EC.element_to_be_clickable((By.XPATH, CATEGORY_CARD_LIST_XPATH)))
@@ -97,4 +113,13 @@ class Scrapper:
         button = WebDriverWait(self.driver, MAX_WAIT_TIME).until(
         EC.element_to_be_clickable((By.XPATH,XPATH)))
         button.click()
+
+
+    def reconnect_vpn(self):
+        subprocess.call(["cmd", "/c",DECONNECT_PATH])
+        time.sleep(2)
+        subprocess.call(["cmd", "/c",CONNECT_PATH, vpn_groups[self.vpn_index % len(vpn_groups)]])
+        self.vpn_index +=1
+
+
 

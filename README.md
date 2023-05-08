@@ -30,6 +30,10 @@ scrap-and-analyse/
 │
 ├── drivers/                      # Folder that contains the driver for the browser
 │   └── chromedriver.exe          # File chromedriver.exe for Chrome
+│ 
+├── scripts/ # Scripts and tools
+│   ├── connect_vpn.bat
+│   └── disconnect_vpn.bat
 │
 ├── .gitignore # Files and folders to ignore by Git
 ├── requirements.txt # List of project dependencies
@@ -60,3 +64,15 @@ This project uses the following libraries:
 
   -`selenium` for the scraping   
 
+
+## To do
+
+-[ ] Use HTTP requests (with the requests library) instead of Selenium. (Selenium is slower than typical HTTP requests because it launches a browser and executes JavaScript)
+
+-[ ] Use threads to process multiple pages in parallel: create a pool of threads that each process a page and fetch data. Need to ensure that data fetching is thread-safe, i.e. multiple threads can fetch data at the same time without creating concurrency issues.
+
+-[ ] Use a faster data extraction method, like BeautifulSoup which is designed for parsing HTML documents. 
+
+-[ ] Use more specific selectors: Directly find the elements (price and description) instead of using the parent elements. (This can reduce the number of item search operations and speed up data retrieval)
+
+-[ ] Avoid unnecessary waiting times: use timeouts only when absolutely necessary, such as to wait for something to load or to meet a website's request limits.
