@@ -76,3 +76,7 @@ This project uses the following libraries:
 -[ ] Use more specific selectors: Directly find the elements (price and description) instead of using the parent elements. (This can reduce the number of item search operations and speed up data retrieval)
 
 -[ ] Avoid unnecessary waiting times: use timeouts only when absolutely necessary, such as to wait for something to load or to meet a website's request limits.
+
+-[ ] Process the data.
+
+-[ ] Create a view to enable user to download the processed data.
