@@ -3,8 +3,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from selectors import CATEGORY_CARD_LIST_XPATH,CARD_PARENT_CSS,PRICE_CSS,TITLE_CSS
+from selectors import CATEGORY_CARD_LIST_XPATH,CARD_PARENT_CSS,PRICE_CSS,TITLE_CSS,NUM_OF_PAGES_CSS
 import csv
+import urllib.parse
 
 
 MAX_WAIT_TIME = 50       
@@ -12,22 +13,42 @@ MAX_WAIT_TIME = 50
 class Scrapper:  
     def __init__(self,url,output_file,driver_path) -> None:
         self.driver = webdriver.Chrome(executable_path = driver_path)
+        self.url = url
         self.driver.get(url)
         self.output_file = output_file
+
+    def get_num_of_pages(self):
+        num_of_pages_element = self.driver.find_element(By.CSS_SELECTOR,NUM_OF_PAGES_CSS)
+        return int(num_of_pages_element.text)
+
+    def scrape_all_pages(self):
+        num_of_pages = self.get_num_of_pages()
+        all_properties_data = []
+
+        for page in range(1, num_of_pages + 1):
+            print(f"Scraping page {page} of {num_of_pages}")
+            properties_data = self.get_properties_data()
+            all_properties_data.extend(properties_data)
+            self.go_to_page(page)
+
+        return all_properties_data
+
+    def go_to_page(self,page):
+        url_parts = list(urllib.parse.urlparse(self.url))
+        query = dict(urllib.parse.parse_qsl(url_parts[4]))
+        query["page"] = str(page)
+        url_parts[4] = urllib.parse.urlencode(query)
+        next_page_url = urllib.parse.urlunparse(url_parts)
+
+        self.driver.get(next_page_url)
+
 
     def run(self):
         print("run scraper called")
         time.sleep(8)
-        category_links = self.get_category_links()
-        properties_data = []
-
-        for link in ['https://www.yad2.co.il/products/furniture?category=2']:
-            self.driver.get(link)
-            properties_data.extend(self.get_properties_data())
-
-        print(properties_data)
-
-        self.write_properties_to_csv(properties_data)
+        all_properties_data = self.scrape_all_pages()
+        
+        self.save_to_csv(all_properties_data)
         self.driver.quit()        
 
     def get_category_links(self):
@@ -61,14 +82,14 @@ class Scrapper:
         return properties_data
 
 
-    def write_properties_to_csv(self, properties_data):
+    def save_to_csv(self, data):
         with open(self.output_file, "w", newline="", encoding="utf-8") as csvfile:
             fieldnames = ["description", "price"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
-            for property_data in properties_data:
-                writer.writerow(property_data)
+            for row in data:
+                writer.writerow(row)
 
 
 
